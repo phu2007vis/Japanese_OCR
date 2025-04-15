@@ -1,0 +1,82 @@
+import fire
+from transformers import Seq2SeqTrainer, Seq2SeqTrainingArguments, default_data_collator
+import os 
+import sys
+
+sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+
+from manga_ocr_dev.env import TRAIN_ROOT
+from manga_ocr_dev.training.dataset import MangaDataset
+from manga_ocr_dev.training.get_model import get_model
+from manga_ocr_dev.training.metrics import Metrics
+from manga_ocr_dev.training.utils import visualize
+
+# if False:
+#     import warnings
+#     import logging
+#     warnings.filterwarnings("ignore")
+#     loggers = [logging.getLogger(name) for name in logging.root.manager.loggerDict]
+#     for logger in loggers:
+#         if "transformers" in logger.name.lower():
+#             print(f"setting logging level to error for f{logger.name}")
+#             logger.setLevel(logging.ERROR)
+
+def run(
+    run_name="debug",
+    max_len=300,
+    batch_size=15,
+    num_epochs=500,
+    logging_steps = 100,
+    fp16=True,
+    save_steps=100,
+    eval_steps=100,
+):
+
+    model, processor = get_model()
+
+    train_dataset = MangaDataset(processor, "train", max_len, augment=True, skip_packages=[])
+    eval_dataset = MangaDataset(processor, "test", max_len, augment=False, skip_packages=[])
+    visualize(MangaDataset(processor, "train", max_len, augment=False, skip_packages=[]),phase = 'train')
+    visualize(MangaDataset(processor, "test", max_len, augment=False, skip_packages=[]),phase = 'test')
+    print(len(train_dataset))
+    print(len(eval_dataset))
+    # import pdb;pdb.set_trace()
+    metrics = Metrics(processor)
+
+    training_args = Seq2SeqTrainingArguments(
+        predict_with_generate=True,
+        eval_strategy="steps",
+        save_strategy="steps",
+        per_device_train_batch_size=batch_size,
+        per_device_eval_batch_size=batch_size,
+        fp16=fp16,
+        fp16_full_eval=fp16,
+        dataloader_num_workers=2,
+        output_dir=TRAIN_ROOT,
+        logging_steps=logging_steps,
+        report_to="none",
+        save_steps=save_steps,
+        eval_steps=eval_steps,
+        num_train_epochs=num_epochs,
+        run_name=run_name,
+        # label_smoothing_factor = 0.2
+        #resume_from_checkpoint= TRAIN_ROOT / 'checkpoint-30000'
+    )
+
+    # instantiate trainer
+    trainer = Seq2SeqTrainer(
+        model=model,
+        processing_class=processor.image_processor,
+        args=training_args,
+        compute_metrics=metrics.compute_metrics,
+        train_dataset=train_dataset,
+        eval_dataset=eval_dataset,
+        data_collator=default_data_collator,
+    )
+    trainer.train(
+        # resume_from_checkpoint= True
+    )
+
+
+if __name__ == "__main__":
+    fire.Fire(run)
