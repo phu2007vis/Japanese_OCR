@@ -26,7 +26,7 @@ def get_model( pretrained_model_name_or_path =None ):
 		pretrained_model_name_or_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(file_location))),'weights_main','phuoc')
 	
 	model = PhuocModel.from_pretrained(pretrained_model_name_or_path)
-
+	
 	image_processor = AutoImageProcessor.from_pretrained(pretrained_model_name_or_path, use_fast=True)
 	tokenizer = AutoTokenizer.from_pretrained(pretrained_model_name_or_path)
 	processor = TrOCRProcessorCustom(image_processor, tokenizer)

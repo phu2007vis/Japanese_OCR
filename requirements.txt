@@ -1,0 +1,5 @@
+fugashi
+torchinfo
+unidic_lite
+jiwer
+accelerate>=0.26.0

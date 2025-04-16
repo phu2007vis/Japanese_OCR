@@ -147,3 +147,4 @@ visualize/*
 weight*/
 tests/data*/
 */wandb/*
+logs/*

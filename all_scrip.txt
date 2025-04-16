@@ -1,0 +1,1 @@
+CUDA_VISIABLE_DEVICES=0,1,2 python  /work/21013187/phuoc/Japanese_OCR/manga_ocr_dev/training/train.py
