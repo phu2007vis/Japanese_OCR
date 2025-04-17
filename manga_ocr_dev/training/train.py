@@ -10,7 +10,7 @@ from manga_ocr_dev.training.dataset import MangaDataset
 from manga_ocr_dev.training.get_model import get_model
 from manga_ocr_dev.training.metrics import Metrics
 from manga_ocr_dev.training.utils import visualize
-
+from manga_ocr_dev.training.losses import ForCausalLMLoss
 
 def run(
     run_name="debug",
@@ -20,7 +20,7 @@ def run(
     logging_steps = 100,
     fp16=True,
     save_steps=200,
-    eval_steps=200,
+    eval_steps=2,
 ):
 
     model, processor = get_model()
@@ -43,7 +43,7 @@ def run(
         per_device_eval_batch_size=batch_size//2,
         fp16=fp16,
         fp16_full_eval=fp16,
-        dataloader_num_workers=4,
+        dataloader_num_workers=2,
         output_dir=TRAIN_ROOT,
         logging_steps=logging_steps,
         report_to="none",
@@ -51,7 +51,7 @@ def run(
         eval_steps=eval_steps,
         num_train_epochs=num_epochs,
         run_name=run_name,
-        
+        eval_on_start=False,
         
         # label_smoothing_factor = 0.2
         #resume_from_checkpoint= TRAIN_ROOT / 'checkpoint-30000'
@@ -66,9 +66,12 @@ def run(
         train_dataset=train_dataset,
         eval_dataset=eval_dataset,
         data_collator=default_data_collator,
-
         
     )
+    # print("🔍 Evaluation before training:")
+    # initial_metrics = trainer.evaluate()
+    # print(initial_metrics)
+    # exit()
     trainer.train(
         # resume_from_checkpoint= True
     )

@@ -25,7 +25,7 @@ class MangaOcr:
             pretrained_model_name_or_path = os.path.join(os.path.dirname(os.path.dirname(file_location)),'weights_main','phuoc')
             
         self.processor = ViTImageProcessor.from_pretrained(pretrained_model_name_or_path)
-        self.tokenizer = AutoTokenizer.from_pretrained(pretrained_model_name_or_path)
+        self.tokenizer = AutoTokenizer.from_pretrained('kha-white/manga-ocr-base')
         self.model = PhuocModel.from_pretrained(pretrained_model_name_or_path)
 
         if not force_cpu and torch.cuda.is_available():

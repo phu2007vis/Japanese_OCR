@@ -9,9 +9,12 @@ import cv2
 import shutil
 TEST_DATA_ROOT = Path(__file__).parent / "data2"
 save_folder = Path(__file__).parent / "data3"
+if os.path.exists(save_folder):
+    import shutil
+    shutil.rmtree(save_folder)
 save_folder.mkdir(exist_ok=True)
 def test_ocr():
-	mocr = MangaOcr(pretrained_model_name_or_path = "/work/21013187/phuoc/Japanese_OCR/data/outputs/checkpoint-800")
+	mocr = MangaOcr(pretrained_model_name_or_path = "/work/21013187/phuoc/Japanese_OCR/data/outputs/checkpoint-7000")
 
 	for file_name in os.listdir(TEST_DATA_ROOT / "images"):
 		path_img = TEST_DATA_ROOT / "images" / file_name

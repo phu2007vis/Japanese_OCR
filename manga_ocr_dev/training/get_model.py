@@ -7,9 +7,7 @@ from transformers import (
 )
 
 import os
-
-class PhuocModel(VisionEncoderDecoderModel, GenerationMixin):
-    pass
+from model import PhuocModel
 
 class TrOCRProcessorCustom(TrOCRProcessor):
 	"""The only point of this class is to bypass type checks of base class."""
@@ -30,5 +28,5 @@ def get_model( pretrained_model_name_or_path =None ):
 	image_processor = AutoImageProcessor.from_pretrained(pretrained_model_name_or_path, use_fast=True)
 	tokenizer = AutoTokenizer.from_pretrained(pretrained_model_name_or_path)
 	processor = TrOCRProcessorCustom(image_processor, tokenizer)
-
+	
 	return model, processor
