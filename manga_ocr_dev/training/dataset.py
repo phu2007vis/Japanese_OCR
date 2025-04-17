@@ -105,7 +105,7 @@ class MangaDataset(Dataset):
 			transform = A.ToGray(p = 1)
 	  
 		img = transform(image=img)["image"]
-		pixel_values = processor(img, return_tensors="pt").pixel_values
+		pixel_values = processor.image_processor(img, return_tensors="pt").pixel_values
 		return pixel_values.squeeze()
 
 	@staticmethod

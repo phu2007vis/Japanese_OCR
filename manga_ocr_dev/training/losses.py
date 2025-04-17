@@ -16,8 +16,7 @@ from typing import Optional
 
 import torch
 import torch.nn as nn
-from torch.nn import BCEWithLogitsLoss, MSELoss
-
+from manga_ocr_dev.env import LABEL_SMOOTHING_FACTOR
 
 
 def fixed_cross_entropy(
@@ -25,9 +24,14 @@ def fixed_cross_entropy(
 	target: torch.Tensor,
 	num_items_in_batch: Optional[int] = None,
 	ignore_index: int = -100,
-	label_smoothing = 0.2,
+	label_smoothing = None,
 	**kwargs,
 ) -> torch.Tensor:
+    
+	if label_smoothing is None:
+		assert LABEL_SMOOTHING_FACTOR >=0 and LABEL_SMOOTHING_FACTOR<1 ,f"LABEL_SMOOTHING_FACTOR must in range(0,1) but take {LABEL_SMOOTHING_FACTOR} value"
+		label_smoothing = LABEL_SMOOTHING_FACTOR 
+	print(f"Trainning with label smoothing factor: {label_smoothing}")
 	reduction = "sum" if num_items_in_batch is not None else "mean"
 	loss = nn.functional.cross_entropy(source, target, ignore_index=ignore_index, reduction=reduction,label_smoothing = label_smoothing)
 	if reduction == "sum":
@@ -42,6 +46,7 @@ def ForCausalLMLoss(
 	num_items_in_batch: Optional[int] = None,
 	ignore_index: int = -100,
 	shift_labels: Optional[torch.Tensor] = None,
+	label_smoothing = None,
 	**kwargs,
 ) -> torch.Tensor:
 	# Upcast to float if we need to compute the loss to avoid potential precision issues
@@ -57,5 +62,12 @@ def ForCausalLMLoss(
 	shift_labels = shift_labels.view(-1)
 	# Enable model parallelism
 	shift_labels = shift_labels.to(logits.device)
-	loss = fixed_cross_entropy(logits, shift_labels, num_items_in_batch, ignore_index, **kwargs)
+ 
+	loss = fixed_cross_entropy(	logits, 
+								shift_labels,
+								num_items_in_batch,
+								ignore_index,
+								label_smoothing=label_smoothing ,
+								**kwargs
+								)
 	return loss

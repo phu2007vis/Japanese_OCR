@@ -5,35 +5,25 @@ import sys
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
-from manga_ocr_dev.env import TRAIN_ROOT
+from manga_ocr_dev.env import *
+
+
 from manga_ocr_dev.training.dataset import MangaDataset
 from manga_ocr_dev.training.get_model import get_model
 from manga_ocr_dev.training.metrics import Metrics
 from manga_ocr_dev.training.utils import visualize
 
-def run(
-    run_name="debug",
-    max_length = 16,
-    batch_size=200,
-    num_epochs=500,
-    logging_steps = 100,
-    fp16=True,
-    save_steps=200,
-    eval_steps=200,
-):
+def run():
+    MAX_SEQUENCE_LENGTH = 16
+    model, processor = get_model(max_length=MAX_SEQUENCE_LENGTH)
 
-    model, processor = get_model(max_length=max_length)
-
-    train_dataset = MangaDataset(processor, "train", max_length, augment=True,)
-    eval_dataset = MangaDataset(processor, "val", max_length, augment=False)
+    train_dataset = MangaDataset(processor, "train", MAX_SEQUENCE_LENGTH, augment=True,)
+    eval_dataset = MangaDataset(processor, "val", MAX_SEQUENCE_LENGTH, augment=False)
     try:
-        visualize(MangaDataset(processor, "train", max_length, augment=True),phase = 'train')
-        visualize(MangaDataset(processor, "val", max_length, augment=False),phase = 'val')
+        visualize(MangaDataset(processor, "train", MAX_SEQUENCE_LENGTH, augment=True),phase = 'train')
+        visualize(MangaDataset(processor, "val", MAX_SEQUENCE_LENGTH, augment=False),phase = 'val')
     except:
         pass
-    # print(len(train_dataset))
-    # print(len(eval_dataset))
-    
     # import pdb;pdb.set_trace()
     
     metrics = Metrics(processor)
@@ -42,18 +32,18 @@ def run(
         predict_with_generate=True,
         eval_strategy="steps",
         save_strategy="steps",
-        per_device_train_batch_size=batch_size,
-        per_device_eval_batch_size=batch_size//2,
-        fp16=fp16,
-        fp16_full_eval=fp16,
+        per_device_train_batch_size=200,
+        per_device_eval_batch_size=2000//2,
+        fp16=True,
+        fp16_full_eval=True,
         dataloader_num_workers=2,
         output_dir=TRAIN_ROOT,
-        logging_steps=logging_steps,
+        logging_steps=100,
         report_to="none",
-        save_steps=save_steps,
-        eval_steps=eval_steps,
-        num_train_epochs=num_epochs,
-        run_name=run_name,
+        save_steps=100,
+        eval_steps=100,
+        num_train_epochs=500,
+        run_name=RUN_NAME,
         eval_on_start=False,
         
         # label_smoothing_factor = 0.2
@@ -79,6 +69,7 @@ def run(
     # initial_metrics = trainer.evaluate()
     # print(initial_metrics)
     # exit()
+    
     trainer.train(
         # resume_from_checkpoint= True
     )

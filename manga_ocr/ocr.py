@@ -5,29 +5,37 @@ import jaconv
 import torch
 from PIL import Image
 from loguru import logger
-from transformers import ViTImageProcessor, AutoTokenizer, VisionEncoderDecoderModel, GenerationMixin
+from transformers import ViTImageProcessor, AutoTokenizer
+
+import sys
+sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
 from transformers import (
-    AutoTokenizer,
-    VisionEncoderDecoderModel,
+    AutoTokenizer
 )
-
-class PhuocModel(VisionEncoderDecoderModel, GenerationMixin):
-    pass
-
+from manga_ocr_dev.training.get_model import get_model
+from manga_ocr_dev.training.model import PhuocModel
 
 class MangaOcr:
     def __init__(self, pretrained_model_name_or_path=None, force_cpu=False):
-        logger.info(f"Loading OCR model from {pretrained_model_name_or_path}")
+        
+        
+        
         if pretrained_model_name_or_path is None:
-            
             file_location = os.path.abspath(__file__)
+            self.tokenizer = AutoTokenizer.from_pretrained(pretrained_model_name_or_path)
             pretrained_model_name_or_path = os.path.join(os.path.dirname(os.path.dirname(file_location)),'weights_main','phuoc')
+            self.processor = ViTImageProcessor.from_pretrained(pretrained_model_name_or_path)
+            self.model = PhuocModel.from_pretrained(pretrained_model_name_or_path)
+        else:
+            model,custom_processor = get_model(pretrained_model_name_or_path=pretrained_model_name_or_path,
+                                        max_length=12,
+                                        mode = 'test')
+            self.model = model
+            self.processor = custom_processor.image_processor
+            self.tokenizer = custom_processor.tokenizer
             
-        self.processor = ViTImageProcessor.from_pretrained(pretrained_model_name_or_path)
-        self.tokenizer = AutoTokenizer.from_pretrained('kha-white/manga-ocr-base')
-        self.model = PhuocModel.from_pretrained(pretrained_model_name_or_path)
-
+        logger.info(f"Loading OCR model from {pretrained_model_name_or_path}")
         if not force_cpu and torch.cuda.is_available():
             logger.info("Using CUDA")
             self.model.cuda()

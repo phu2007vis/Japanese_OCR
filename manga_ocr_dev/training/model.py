@@ -1,9 +1,8 @@
 
-import copy
+
 from typing import Optional, Tuple, Union
 import torch
-import os
-import re
+
 
 from transformers import (
 	VisionEncoderDecoderModel,
@@ -15,13 +14,11 @@ from transformers.modeling_outputs import BaseModelOutput, Seq2SeqLMOutput
 from transformers.models.vision_encoder_decoder.modeling_vision_encoder_decoder import (
 	VISION_ENCODER_DECODER_INPUTS_DOCSTRING,
 	shift_tokens_right,
-	PretrainedConfig,
-   	logger
 )
 from torch import nn
 from transformers.models.vit.modeling_vit import ViTPatchEmbeddings,ViTEmbeddings,ViTModel
 from transformers.utils import  add_start_docstrings_to_model_forward
-from losses import ForCausalLMLoss
+from .losses import ForCausalLMLoss
 
 class PhuocViTEmbeddings(ViTEmbeddings):
     """
@@ -30,7 +27,7 @@ class PhuocViTEmbeddings(ViTEmbeddings):
 
     def __init__(self, config, use_mask_token: bool = False) -> None:
         super().__init__(config=config,use_mask_token=use_mask_token)
-		
+
         self.patch_embeddings = ViTPatchEmbeddings(config)
         num_patches = self.patch_embeddings.num_patches
         self.position_embeddings = nn.Parameter(torch.randn(1, num_patches + 1, config.hidden_size))

@@ -5,20 +5,22 @@ from transformers import (
 	
 )
 from copy import deepcopy
-from timm.layers import resample_abs_pos_embed
 import os
-from model import PhuocModel,PhuocViTEmbeddings
+from .model import PhuocModel,PhuocViTEmbeddings
 
-class TrOCRProcessorCustom(TrOCRProcessor):
-	"""The only point of this class is to bypass type checks of base class."""
+class TrOCRProcessorCustom:
+    """The only point of this class is to bypass type checks of base class."""
 
-	def __init__(self, feature_extractor, tokenizer):
-		super().__init__(feature_extractor=feature_extractor, tokenizer=tokenizer)
-		self.current_processor = self.feature_extractor
- 
- 
+    def __init__(self, image_processor, tokenizer):
+        self.image_processor = image_processor
+        self.tokenizer = tokenizer
+        self.current_processor = self.image_processor
 
-def replace_encoder(model, img_size,new_patch_size = (16,16), max_label_length=16):
+def replace_encoder(model, 
+					img_size,
+					new_patch_size = (16,16),
+					max_label_length=16,
+					mode = 'train'):
 	"""
 	Replace the encoder's embedding layer in the given model with a new one
 	adapted to a specific image size and max label length.
@@ -31,13 +33,12 @@ def replace_encoder(model, img_size,new_patch_size = (16,16), max_label_length=1
 	Returns:
 		nn.Module: The updated model with a new encoder embedding.
 	"""
-	# Update encoder configuration
+	assert mode in ['train','test']
+ 	# Update encoder configuration
 	encoder_config = model.config.encoder
 	encoder_config.image_size = img_size
 	encoder_config.patch_size = new_patch_size
 	
-	
-
 	# Create new embedding with updated config
 	new_embedder = PhuocViTEmbeddings(encoder_config)
 
@@ -73,30 +74,36 @@ def replace_encoder(model, img_size,new_patch_size = (16,16), max_label_length=1
 
 	return model
 
-def get_model( pretrained_model_name_or_path =None,max_length=None,img_size = (64,240) ):
-
+def get_model( pretrained_model_name_or_path =None,max_length=None,img_size = (64,240),mode = 'train' ):
+	assert(mode in ['train','test'])
+ 
 	if pretrained_model_name_or_path is None:
 		file_location = os.path.abspath(__file__)
 		pretrained_model_name_or_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(file_location))),'weights_main','phuoc')
 	
 	model = PhuocModel.from_pretrained(pretrained_model_name_or_path)
-	replace_encoder(model,img_size)
+ 
+	# if mode == 'train':
+	# 	replace_encoder(model,img_size)
+	# 	new_h,new_w = model.config.encoder.image_size
+	# 	image_processor.size = {"height": new_h, "width": new_w}
+  
 	image_processor = AutoImageProcessor.from_pretrained(pretrained_model_name_or_path, use_fast=True)
-	new_h,new_w = model.config.encoder.image_size
-	image_processor.size = {"height": new_h, "width": new_w}
 	tokenizer = AutoTokenizer.from_pretrained(pretrained_model_name_or_path)
+ 
 	processor = TrOCRProcessorCustom(image_processor, tokenizer)
 	
 	if max_length is None:
 		raise ValueError("max_length cannot be None")
 
-	model.generation_config.decoder_start_token_id = processor.tokenizer.cls_token_id
-	model.generation_config.eos_token_id = processor.tokenizer.sep_token_id
-	model.generation_config.max_length = max_length
-	model.generation_config.early_stopping = True
-	model.generation_config.num_beams = 4
-	model.generation_config.no_repeat_ngram_size = 3
-	model.generation_config.length_penalty = 2.0
-	
- 
+	if mode == 'train':
+		model.config.vocab_size = model.config.decoder.vocab_size
+		model.generation_config.decoder_start_token_id = processor.tokenizer.cls_token_id
+		model.generation_config.eos_token_id = processor.tokenizer.sep_token_id
+		model.generation_config.max_length = max_length
+		model.generation_config.early_stopping = True
+		model.generation_config.num_beams = 4
+		model.generation_config.no_repeat_ngram_size = 3
+		model.generation_config.length_penalty = 2.0
+  
 	return model, processor
