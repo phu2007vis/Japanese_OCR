@@ -10,7 +10,6 @@ class Metrics:
     def compute_metrics(self, pred):
         label_ids = pred.label_ids
         pred_ids = pred.predictions
-        print(label_ids.shape, pred_ids.shape)
        
         pred_str = self.processor.batch_decode(pred_ids, skip_special_tokens=True)
         label_ids[label_ids == -100] = self.processor.tokenizer.pad_token_id
@@ -18,7 +17,9 @@ class Metrics:
 
         pred_str = np.array(["".join(text.split()) for text in pred_str])
         label_str = np.array(["".join(text.split()) for text in label_str])
-      
+        # for pred,label in zip(pred_str,label_str):
+        #     if pred != label:
+        #         import pdb;pdb.set_trace()
         results = {}
         
         try:

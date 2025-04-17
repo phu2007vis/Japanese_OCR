@@ -5,7 +5,7 @@ import jaconv
 import torch
 from PIL import Image
 from loguru import logger
-from transformers import ViTImageProcessor, AutoTokenizer, VisionEncoderDecoderModel, GenerationMixin,ViTForImageClassification,ViTConfig
+from transformers import ViTImageProcessor, AutoTokenizer, VisionEncoderDecoderModel, GenerationMixin
 
 from transformers import (
     AutoTokenizer,

@@ -5,7 +5,7 @@ import numpy as np
 import pandas as pd
 import torch
 from torch.utils.data import Dataset
-from manga_ocr_dev.env import  DATA_SYNTHETIC_ROOT
+from manga_ocr_dev.env import  DATA_SYNTHETIC_ROOT,DATA_SYNTHETIC_ROOT_VER
 import os
 
 class MangaDataset(Dataset):
@@ -23,11 +23,11 @@ class MangaDataset(Dataset):
 		self.max_target_length = max_target_length
 
 		data = []
-
-		print(f"Initializing dataset {split}...")
+		
+		print(f"Initializing dataset {split +str(DATA_SYNTHETIC_ROOT_VER)}...")
 
 	
-		root_folder = DATA_SYNTHETIC_ROOT / split
+		root_folder = DATA_SYNTHETIC_ROOT / (split+str(DATA_SYNTHETIC_ROOT_VER))
 		csv_path = root_folder / 'label.csv'
 		
 		df = pd.read_csv(csv_path)
@@ -112,25 +112,49 @@ class MangaDataset(Dataset):
 	def get_transforms():
 		t_medium = A.Compose(
 			[
-				A.Rotate(5, border_mode=cv2.BORDER_REPLICATE, p=0.2),
-				A.Perspective((0.01, 0.05), pad_mode=cv2.BORDER_REPLICATE, p=0.2),
-				A.Blur(p=0.2),
-				A.RandomBrightnessContrast(p=0.5),
-				A.ToGray(p= 1),
+				A.Rotate(limit=5, border_mode=cv2.BORDER_REPLICATE, p=0.2),
+				A.Perspective(scale=(0.01, 0.05), border_mode=cv2.BORDER_REPLICATE, p=0.2),
+				A.InvertImg(p=0.05),
+				A.OneOf(
+					[
+						A.Downscale(scale_range=(0.25, 0.5),
+				  					interpolation_pair={'downscale': cv2.INTER_NEAREST, 'upscale': cv2.INTER_LINEAR}),
+					],
+					p=0.1,
+				),
+				A.Blur(blur_limit=(3, 3), p=0.2),
+				A.Sharpen(alpha=(0.2, 0.5), lightness=(0.5, 1.0), p=0.2),
+				A.RandomBrightnessContrast(brightness_limit=0.2, contrast_limit=0.2, p=0.5),
+				A.GaussNoise(std_range=(0.05, 0.1), p=0.3),
+				A.ImageCompression(quality_range=(1, 30), p=0.1),
+				A.ToGray(p=1.0),
 			]
 		)
 
 		t_heavy = A.Compose(
 			[
-				A.Rotate(10, border_mode=cv2.BORDER_REPLICATE, p=0.2),
-				A.Blur((4, 9), p=0.5),
-				A.RandomBrightnessContrast(0.8, 0.8, p=1),
-				A.ToGray(p = 1),
+				A.Rotate(limit=10, border_mode=cv2.BORDER_REPLICATE, p=0.2),
+				A.Perspective(scale=(0.01, 0.05), border_mode=cv2.BORDER_REPLICATE, p=0.2),
+				A.InvertImg(p=0.05),
+				A.OneOf(
+					[
+						A.Downscale(scale_range=(0.25, 0.5),
+				  					interpolation_pair={'downscale': cv2.INTER_NEAREST, 'upscale': cv2.INTER_LINEAR}),
+					],
+					p=0.1,
+				),
+				A.Blur(blur_limit=(3, 9), p=0.5),
+				A.Sharpen(alpha=(0.2, 0.5), lightness=(0.5, 1.0), p=0.5),
+				A.RandomBrightnessContrast(brightness_limit=0.8, contrast_limit=0.8, p=1.0),
+				A.GaussNoise(std_range=(0.124,  0.392), p=0.3),
+				A.ImageCompression(quality_range=(1, 10), p=0.5),
+				A.ToGray(p=1.0),
 			]
 		)
 
 		return t_medium, t_heavy
 
+	
 
 if __name__ == "__main__":
 	from manga_ocr_dev.training.get_model import get_processor

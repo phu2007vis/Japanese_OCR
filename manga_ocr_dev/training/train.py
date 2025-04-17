@@ -10,32 +10,33 @@ from manga_ocr_dev.training.dataset import MangaDataset
 from manga_ocr_dev.training.get_model import get_model
 from manga_ocr_dev.training.metrics import Metrics
 from manga_ocr_dev.training.utils import visualize
-from manga_ocr_dev.training.losses import ForCausalLMLoss
 
 def run(
     run_name="debug",
-    max_len = 20,
+    max_length = 16,
     batch_size=200,
     num_epochs=500,
     logging_steps = 100,
     fp16=True,
     save_steps=200,
-    eval_steps=2,
+    eval_steps=200,
 ):
 
-    model, processor = get_model()
+    model, processor = get_model(max_length=max_length)
 
-    train_dataset = MangaDataset(processor, "train", max_len, augment=True,)
-    eval_dataset = MangaDataset(processor, "val", max_len, augment=False)
-    visualize(MangaDataset(processor, "train", max_len, augment=False),phase = 'train')
-    visualize(MangaDataset(processor, "val", max_len, augment=False),phase = 'val')
-    print(len(train_dataset))
-    print(len(eval_dataset))
+    train_dataset = MangaDataset(processor, "train", max_length, augment=True,)
+    eval_dataset = MangaDataset(processor, "val", max_length, augment=False)
+    # visualize(MangaDataset(processor, "train", max_length, augment=False),phase = 'train')
+    # visualize(MangaDataset(processor, "val", max_length, augment=False),phase = 'val')
+    # exit()
+    # print(len(train_dataset))
+    # print(len(eval_dataset))
+    
     # import pdb;pdb.set_trace()
+    
     metrics = Metrics(processor)
 
     training_args = Seq2SeqTrainingArguments(
-        
         predict_with_generate=True,
         eval_strategy="steps",
         save_strategy="steps",
@@ -68,6 +69,10 @@ def run(
         data_collator=default_data_collator,
         
     )
+    # print("🔍 Evaluation before training:")
+    # initial_metrics = trainer.evaluate()
+    # print(initial_metrics)
+    # exit()
     # print("🔍 Evaluation before training:")
     # initial_metrics = trainer.evaluate()
     # print(initial_metrics)
