@@ -46,15 +46,21 @@ def visualize(dataset,phase,save_folder = None):
 
         save_folder = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
         save_folder = os.path.join(save_folder,'visualize',phase)
-
+    if os.path.exists(save_folder):
+        import shutil
+        shutil.rmtree(save_folder)
+        
     os.makedirs(save_folder,exist_ok=True)
     dataset.return_text = True
-    for i in range(20):
+    for i in range(min(len(dataset),100)):
         encoding = dataset[i]
         img = tensor_to_image(encoding['pixel_values'])
         text = encoding['text']
         img_name = f"{text}_{i}.png"
         img_path  = os.path.join(save_folder,img_name)
-        cv2.imwrite(img_path,img)
+        try:
+            cv2.imwrite(img_path,img)
+        except:
+            continue
     dataset.return_text = False 
     print(f"Save visualize at {save_folder}")

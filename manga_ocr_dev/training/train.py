@@ -26,9 +26,11 @@ def run(
 
     train_dataset = MangaDataset(processor, "train", max_length, augment=True,)
     eval_dataset = MangaDataset(processor, "val", max_length, augment=False)
-    # visualize(MangaDataset(processor, "train", max_length, augment=False),phase = 'train')
-    # visualize(MangaDataset(processor, "val", max_length, augment=False),phase = 'val')
-    # exit()
+    try:
+        visualize(MangaDataset(processor, "train", max_length, augment=True),phase = 'train')
+        visualize(MangaDataset(processor, "val", max_length, augment=False),phase = 'val')
+    except:
+        pass
     # print(len(train_dataset))
     # print(len(eval_dataset))
     

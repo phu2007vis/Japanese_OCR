@@ -113,8 +113,8 @@ class MangaDataset(Dataset):
 		t_medium = A.Compose(
 			[
 				A.Rotate(limit=5, border_mode=cv2.BORDER_REPLICATE, p=0.2),
-				A.Perspective(scale=(0.01, 0.05), border_mode=cv2.BORDER_REPLICATE, p=0.2),
-				A.InvertImg(p=0.05),
+				A.Perspective(scale=(0.01, 0.01), border_mode=cv2.BORDER_REPLICATE, p=0.2),
+				# A.InvertImg(p=0.05),
 				A.OneOf(
 					[
 						A.Downscale(scale_range=(0.25, 0.5),
@@ -133,9 +133,9 @@ class MangaDataset(Dataset):
 
 		t_heavy = A.Compose(
 			[
-				A.Rotate(limit=10, border_mode=cv2.BORDER_REPLICATE, p=0.2),
-				A.Perspective(scale=(0.01, 0.05), border_mode=cv2.BORDER_REPLICATE, p=0.2),
-				A.InvertImg(p=0.05),
+				A.Rotate(limit=5, border_mode=cv2.BORDER_REPLICATE, p=0.2),
+				A.Perspective(scale=(0.005, 0.005), border_mode=cv2.BORDER_REPLICATE, p=0.2),
+				# A.InvertImg(p=0.05),
 				A.OneOf(
 					[
 						A.Downscale(scale_range=(0.25, 0.5),
@@ -145,7 +145,7 @@ class MangaDataset(Dataset):
 				),
 				A.Blur(blur_limit=(3, 9), p=0.5),
 				A.Sharpen(alpha=(0.2, 0.5), lightness=(0.5, 1.0), p=0.5),
-				A.RandomBrightnessContrast(brightness_limit=0.8, contrast_limit=0.8, p=1.0),
+				A.RandomBrightnessContrast(brightness_limit=0.5, contrast_limit=0.5, p=1),
 				A.GaussNoise(std_range=(0.124,  0.392), p=0.3),
 				A.ImageCompression(quality_range=(1, 10), p=0.5),
 				A.ToGray(p=1.0),
