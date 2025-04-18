@@ -56,13 +56,17 @@ Can also customize load weight process at manga_ocr_dev/training/get_model.py
 3. Run trainning command
 
 - Single GPU
-```
+```bash
 manga_ocr_dev/training/train.py
 ```
 
 - Multi GPUS
-```
+```bash
 CUDA_VISIBLE_DEVICES=2,3 manga_ocr_dev/training/train.py
+```
+# Evaluate 
+```bash
+python  manga_ocr_dev/training/eval_model.py --device 0
 ```
 # References
 May contains some version errors that i updated in my code
