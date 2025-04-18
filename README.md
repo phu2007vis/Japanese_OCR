@@ -23,6 +23,6 @@ Ensure the stucture of weight is:
 ```
 Can also customize load weight process at manga_ocr_dev/training/get_model.py
 
-4. References
+# References
 May contains some version errors that i updated in my code
 - [kha-white/manga-ocr](https://github.com/kha-white/manga-ocr): A powerful OCR system for extracting text from manga images using deep learning.
