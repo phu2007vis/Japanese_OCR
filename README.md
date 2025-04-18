@@ -4,21 +4,23 @@
 
 
 # Some sample synthetic data
-![plot](images/db_net.png)
-# Requirements
-paddlepaddle==3.0.0rc1
+![plot](data/595.png)
+# Key requirements
+transformers >= 4.5x 
+python 3.11 is recommended which is my case (i also test run well with python 3.9)
 # Download weight 
 ```bash
-mkdir weights
-cd weights
-wget https://github.com/phu2007vis/Paddle_Binary_Detection/releases/download/sdsd/det_r50_icdar15_v5.zip
-unzip det_r50_icdar15_v5.zip
-cd ..
+wget https://github.com/phu2007vis/Japanese_OCR/releases/download/weights/weights_main.zip
+unzip weights_main
 ```
+ensure the stucture of weight is:
+--root
+    --weights_main
+        --phuoc
+            --all file weights and config here
+
+you can also customize load weight process at manga_ocr_dev/training/get_model.py
 # Replace weight path in tempate.yaml
 
-# Test ( result save in visualize.jpg)
-```bash
-python main.py
-```
-![plot](images/visualize.jpg)
+# Test 
+![plot](data/visualize.png)
