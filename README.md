@@ -48,8 +48,22 @@ Can also customize load weight process at manga_ocr_dev/training/get_model.py
                 --images
                 --label.csv
 ```
+- Label.csv file
+    - source,vertical and font_path is any value we don't use this now ( i will update the code)
+    - id : Name of image (if the img name is 111.png the actual value is 111 - not contains the value after '.' )
+    - Text is text of Image
+    - Note all image have to end with ".png" Which i hard code in manga_ocr_dev/training/dataset.py
+3. Run trainning command
 
-CUDA_VISIBLE_DEVICES
+- Single GPU
+```
+manga_ocr_dev/training/train.py
+```
+
+- Multi GPUS
+```
+CUDA_VISIBLE_DEVICES=2,3 manga_ocr_dev/training/train.py
+```
 # References
 May contains some version errors that i updated in my code
 - [kha-white/manga-ocr](https://github.com/kha-white/manga-ocr): A powerful OCR system for extracting text from manga images using deep learning.
