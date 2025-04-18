@@ -18,7 +18,8 @@ import torch
 import torch.nn as nn
 from manga_ocr_dev.env import LABEL_SMOOTHING_FACTOR
 
-
+global PRINTED
+PRINTED= False
 def fixed_cross_entropy(
 	source: torch.Tensor,
 	target: torch.Tensor,
@@ -27,11 +28,14 @@ def fixed_cross_entropy(
 	label_smoothing = None,
 	**kwargs,
 ) -> torch.Tensor:
-    
+	global PRINTED
 	if label_smoothing is None:
 		assert LABEL_SMOOTHING_FACTOR >=0 and LABEL_SMOOTHING_FACTOR<1 ,f"LABEL_SMOOTHING_FACTOR must in range(0,1) but take {LABEL_SMOOTHING_FACTOR} value"
 		label_smoothing = LABEL_SMOOTHING_FACTOR 
-	print(f"Trainning with label smoothing factor: {label_smoothing}")
+	if not PRINTED:
+		print(f"Trainning with label smoothing factor: {label_smoothing}")
+		PRINTED = True
+  
 	reduction = "sum" if num_items_in_batch is not None else "mean"
 	loss = nn.functional.cross_entropy(source, target, ignore_index=ignore_index, reduction=reduction,label_smoothing = label_smoothing)
 	if reduction == "sum":

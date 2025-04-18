@@ -7,6 +7,10 @@ import torch
 from torch.utils.data import Dataset
 from manga_ocr_dev.env import  DATA_SYNTHETIC_ROOT,DATA_SYNTHETIC_ROOT_VER
 import os
+import random
+
+global kernel
+kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(5,5))
 
 class MangaDataset(Dataset):
 	def __init__(
@@ -50,7 +54,8 @@ class MangaDataset(Dataset):
 		self.return_text = False
 		self.augment = augment
 		self.transform_medium, self.transform_heavy = self.get_transforms()
-
+		
+  
 	def __len__(self):
 		return len(self.data)
 
@@ -103,56 +108,77 @@ class MangaDataset(Dataset):
 			print(path)
 		if transform is None:
 			transform = A.ToGray(p = 1)
-	  
-		img = transform(image=img)["image"]
+			img = transform(image=img)["image"]
+		else: 
+			img = transform(image=img)["image"]
+			
+			global kernel
+			if random.randint(1, 5) == 1:
+				# erosion because the image is not inverted
+				img = cv2.dilate(img, kernel,iterations=random.randint(1, 1))
+			
+			elif random.randint(1, 5) == 1:
+				img = cv2.erode(img, kernel, iterations=random.randint(1, 1))
+
 		pixel_values = processor.image_processor(img, return_tensors="pt").pixel_values
 		return pixel_values.squeeze()
 
 	@staticmethod
 	def get_transforms():
-		t_medium = A.Compose(
-			[
-				A.Rotate(limit=5, border_mode=cv2.BORDER_REPLICATE, p=0.2),
-				A.Perspective(scale=(0.01, 0.01), border_mode=cv2.BORDER_REPLICATE, p=0.2),
-				# A.InvertImg(p=0.05),
+		t_medium =  A.Compose(
+				[
+		
+				A.OneOf([
+						A.ShiftScaleRotate(shift_limit=0, scale_limit=0.03, rotate_limit=4, border_mode=cv2.BORDER_CONSTANT, value=(255,255,255),p=1),
+						A.ShiftScaleRotate(shift_limit=0.03, scale_limit=0, rotate_limit=4, border_mode=cv2.BORDER_CONSTANT, value=(255,255,255),p=1),
+						A.ShiftScaleRotate(shift_limit=0.02, scale_limit=0.03, rotate_limit=4, border_mode=cv2.BORDER_CONSTANT, value=(255,255,255),p=1),        
+				], p=0.5),
+				
+				A.AdditiveNoise (noise_type='gaussian', spatial_mode='per_pixel', p= 0.3,approximation = 0.65),
+				A.Blur(blur_limit=5,p=0.33),
+				A.OneOf([
+							A.PixelDropout(drop_value=255,p=1),
+							A.PixelDropout(p=1),
+						], p=0.1),
+				
 				A.OneOf(
-					[
-						A.Downscale(scale_range=(0.25, 0.5),
-				  					interpolation_pair={'downscale': cv2.INTER_NEAREST, 'upscale': cv2.INTER_LINEAR}),
-					],
-					p=0.1,
-				),
-				A.Blur(blur_limit=(3, 3), p=0.2),
-				A.Sharpen(alpha=(0.2, 0.5), lightness=(0.5, 1.0), p=0.2),
-				A.RandomBrightnessContrast(brightness_limit=0.2, contrast_limit=0.2, p=0.5),
-				A.GaussNoise(std_range=(0.05, 0.1), p=0.3),
-				A.ImageCompression(quality_range=(1, 30), p=0.1),
-				A.ToGray(p=1.0),
+                    [
+                        A.Downscale(0.25, 0.5, interpolation=cv2.INTER_LINEAR),
+                        A.Downscale(0.25, 0.5, interpolation=cv2.INTER_NEAREST),
+                    ],
+                    p=0.1,
+                ),
+     			A.Sharpen(p=0.1),
+			
+					
+				
 			]
 		)
+	
 
-		t_heavy = A.Compose(
-			[
-				A.Rotate(limit=5, border_mode=cv2.BORDER_REPLICATE, p=0.2),
-				A.Perspective(scale=(0.005, 0.005), border_mode=cv2.BORDER_REPLICATE, p=0.2),
-				# A.InvertImg(p=0.05),
-				A.OneOf(
-					[
-						A.Downscale(scale_range=(0.25, 0.5),
-				  					interpolation_pair={'downscale': cv2.INTER_NEAREST, 'upscale': cv2.INTER_LINEAR}),
-					],
-					p=0.1,
-				),
-				A.Blur(blur_limit=(3, 9), p=0.5),
-				A.Sharpen(alpha=(0.2, 0.5), lightness=(0.5, 1.0), p=0.5),
-				A.RandomBrightnessContrast(brightness_limit=0.5, contrast_limit=0.5, p=1),
-				A.GaussNoise(std_range=(0.124,  0.392), p=0.3),
-				A.ImageCompression(quality_range=(1, 10), p=0.5),
-				A.ToGray(p=1.0),
-			]
-		)
 
-		return t_medium, t_heavy
+		# t_heavy = A.Compose(
+		# 	[
+		# 		A.Rotate(limit=5, border_mode=cv2.BORDER_REPLICATE, p=0.2),
+		# 		A.Perspective(scale=(0.005, 0.005), border_mode=cv2.BORDER_REPLICATE, p=0.2),
+		# 		# A.InvertImg(p=0.05),
+		# 		A.OneOf(
+		# 			[
+		# 				A.Downscale(scale_range=(0.25, 0.5),
+		# 		  					interpolation_pair={'downscale': cv2.INTER_NEAREST, 'upscale': cv2.INTER_LINEAR}),
+		# 			],
+		# 			p=0.1,
+		# 		),
+		# 		A.Blur(blur_limit=(3, 9), p=0.5),
+		# 		A.Sharpen(alpha=(0.2, 0.5), lightness=(0.5, 1.0), p=0.5),
+		# 		A.RandomBrightnessContrast(brightness_limit=0.5, contrast_limit=0.5, p=1),
+		# 		A.GaussNoise(std_range=(0.124,  0.392), p=0.3),
+		# 		A.ImageCompression(quality_range=(1, 10), p=0.5),
+		# 		A.ToGray(p=1.0),
+		# 	]
+		# )
+
+		return t_medium, t_medium
 
 	
 

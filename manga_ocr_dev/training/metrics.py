@@ -11,9 +11,9 @@ class Metrics:
         label_ids = pred.label_ids
         pred_ids = pred.predictions
        
-        pred_str = self.processor.batch_decode(pred_ids, skip_special_tokens=True)
+        pred_str = self.processor.tokenizer.batch_decode(pred_ids, skip_special_tokens=True)
         label_ids[label_ids == -100] = self.processor.tokenizer.pad_token_id
-        label_str = self.processor.batch_decode(label_ids, skip_special_tokens=True)
+        label_str = self.processor.tokenizer.batch_decode(label_ids, skip_special_tokens=True)
 
         pred_str = np.array(["".join(text.split()) for text in pred_str])
         label_str = np.array(["".join(text.split()) for text in label_str])

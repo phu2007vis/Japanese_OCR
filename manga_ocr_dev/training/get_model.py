@@ -80,7 +80,7 @@ def get_model( pretrained_model_name_or_path =None,max_length=None,img_size = (6
 	if pretrained_model_name_or_path is None:
 		file_location = os.path.abspath(__file__)
 		pretrained_model_name_or_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(file_location))),'weights_main','phuoc')
-	
+	print(f"Load model from: {pretrained_model_name_or_path}")
 	model = PhuocModel.from_pretrained(pretrained_model_name_or_path)
  
 	# if mode == 'train':
@@ -96,14 +96,14 @@ def get_model( pretrained_model_name_or_path =None,max_length=None,img_size = (6
 	if max_length is None:
 		raise ValueError("max_length cannot be None")
 
-	if mode == 'train':
-		model.config.vocab_size = model.config.decoder.vocab_size
-		model.generation_config.decoder_start_token_id = processor.tokenizer.cls_token_id
-		model.generation_config.eos_token_id = processor.tokenizer.sep_token_id
-		model.generation_config.max_length = max_length
-		model.generation_config.early_stopping = True
-		model.generation_config.num_beams = 4
-		model.generation_config.no_repeat_ngram_size = 3
-		model.generation_config.length_penalty = 2.0
+	
+	model.config.vocab_size = model.config.decoder.vocab_size
+	model.generation_config.decoder_start_token_id = processor.tokenizer.cls_token_id
+	model.generation_config.eos_token_id = processor.tokenizer.sep_token_id
+	model.generation_config.max_length = max_length
+	model.generation_config.early_stopping = True
+	model.generation_config.num_beams = 2
+	model.generation_config.no_repeat_ngram_size = 3
+	model.generation_config.length_penalty = 2.0
   
 	return model, processor

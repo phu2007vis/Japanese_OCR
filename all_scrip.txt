@@ -1,3 +1,3 @@
-CUDA_VISIBLE_DEVICES=0,1,2 python  /work/21013187/phuoc/Japanese_OCR/manga_ocr_dev/training/train.py
+CUDA_VISIBLE_DEVICES=0 python  /work/21013187/phuoc/Japanese_OCR/manga_ocr_dev/training/train.py
 
 /home/21013187/anaconda3/envs/py311/lib/python3.11/site-packages/transformers/models/vit/modeling_vit.py

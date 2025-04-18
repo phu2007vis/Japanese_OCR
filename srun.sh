@@ -22,7 +22,7 @@ conda deactivate
 conda deactivate
 
 conda activate py311
-
+export CUDA_VISIBLE_DEVICES=1,4,2
 python --version
 
 torchrun --nproc_per_node=3 --rdzv_id=100 --rdzv_backend=c10d --rdzv_endpoint=$MASTER_ADDR:29400 /work/21013187/phuoc/Japanese_OCR/manga_ocr_dev/training/train.py

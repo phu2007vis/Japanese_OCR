@@ -10,7 +10,7 @@ DATA_SYNTHETIC_ROOT = Path(os.path.join(MAIN_ROOT,"synthetic")).expanduser()
 # DATA_SYNTHETIC_ROOT = /work/21013187/phuoc/Japanese_OCR/data/synthetic
 # DATA_SYNTHETIC_ROOT_VER = '2'
 # Train dir: /work/21013187/phuoc/Japanese_OCR/data/synthetic/train2
-DATA_SYNTHETIC_ROOT_VER = '2'
+DATA_SYNTHETIC_ROOT_VER = '22'
 
 #SaveFolder
 TRAIN_ROOT = Path(os.path.join(MAIN_ROOT,"outputs")).expanduser()
