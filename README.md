@@ -2,15 +2,16 @@
 
 1. Scrip for text generation
 2. New pretrained weights
-3. If you found this repository helpful or inspiring, please consider starring it. Your support encourages further development and enhancements
+3. If you found this repository helpful or inspiring, please consider starring it.
+4. Your support encourages further development and enhancements
 
 # Test 
 ![plot](data/visualize.png)
 # Some sample synthetic data
 ![plot](data/595.png)
 # Key requirements
-transformers >= 4.5x 
-python 3.11 is recommended which is my case (i also test run well with python 3.9)
+- transformers >= 4.5x 
+- python 3.11 is recommended which is my case (i also test run well with python 3.9)
 # Download weight 
 ```bash
 wget https://github.com/phu2007vis/Japanese_OCR/releases/download/weights/weights_main.zip
