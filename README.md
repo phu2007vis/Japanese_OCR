@@ -32,12 +32,21 @@ Can also customize load weight process at manga_ocr_dev/training/get_model.py
 - Edit  (MAIN_ROOT,...) at manga_ocr_dev/env.py 
     - DATA_SYNTHETIC_ROOT: Update MAIN_ROOT path, DATA_SYNTHETIC_ROOT will update  automatelly
     - TRAIN_ROOT: Save folder
-    - Important: DATA_SYNTHETIC_ROOT_VER is the post prefix name (for ex: if DATA_SYNTHETIC_ROOT_VER='2' the actual train path is train2 and val path is val2 )
+    - Important: DATA_SYNTHETIC_ROOT_VER is the post prefix name 
+    - (for ex: if DATA_SYNTHETIC_ROOT_VER='2' the actual train path is train2 and val path is val2 )
+    - Recommend take a look at manga_ocr_dev/training/dataset.py  to see how the dataset read  from disk
     - Recommend take a look at manga_ocr_dev/env.py  to see how the path transform
 
 
 ```
-
+- MAIN_ROOT
+    - synthetic ( auto join the path in file  manga_ocr_dev/env.py)
+            - train2 (if DATA_SYNTHETIC_ROOT_VER = '2')
+                --images
+                --label.csv
+            - val2 
+                --images
+                --label.csv
 ```
 
 CUDA_VISIBLE_DEVICES
