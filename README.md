@@ -2,6 +2,7 @@
 
 1. Scrip for text generation
 2. New pretrained weights
+3. If you found this repository helpful or inspiring, please consider starring it. Your support encourages further development and enhancements
 
 # Test 
 ![plot](data/visualize.png)
